@@ -1,0 +1,48 @@
+package com.ibk.tipoCambio.jwt;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+
+    private static final String AUTHORIZATION = "Authorization";
+
+    @Autowired
+    private JwtService jwtService;
+    
+    public JwtAuthorizationFilter(AuthenticationManager authManager) {
+        super(authManager);
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws IOException, ServletException {
+
+        String authHeader = request.getHeader(AUTHORIZATION);
+        if (jwtService.isBearer(authHeader)) {
+            LogManager.getLogger(this.getClass().getName()).debug(">>> FILTER JWT...");
+            List<GrantedAuthority> authorities = jwtService.roles(authHeader).stream()
+                    .map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(jwtService.user(authHeader), null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        filterChain.doFilter(request, response);
+    }
+
+}
