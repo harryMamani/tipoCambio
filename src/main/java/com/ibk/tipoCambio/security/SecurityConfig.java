@@ -41,7 +41,9 @@ public class SecurityConfig {
 		http.authorizeHttpRequests(
 				authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
 						.requestMatchers("/monedas/**").hasAnyRole("ADMIN").requestMatchers("/cambio/**").permitAll()
-						.requestMatchers("/security/login").permitAll());
+						.requestMatchers("/security/login").permitAll()
+						.requestMatchers("/swagger-ui/**").permitAll()
+						.requestMatchers("/v3/api-docs/**").permitAll());
 
 		return http.build();
 	}

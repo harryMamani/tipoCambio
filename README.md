@@ -35,3 +35,9 @@ En la seccion Authorization seleccionar la opcion Basic Auth y usar las credenci
 
 - **username: harry**
 - **password: 123**
+
+## Ver los metodos en Swagger Ui
+
+ingresar al link:
+[swagger](http://localhost:8080/tipo-cambio/swagger-ui/index.html)
+
